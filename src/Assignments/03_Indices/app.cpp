@@ -76,12 +76,6 @@ indices = uniqueIndices;
      * error code, the macro will print the name of the function that failed, the file and line number where the error
      * occurred.
      */
-  //  indices.push_back(0); // Index of the first vertex
-  //  indices.push_back(1); // Index of the second vertex
-   // indices.push_back(2); // Index of the third vertex
-
-   // indices.push_back(3); // Index of the second vertex
-   // indices.push_back(4); // Index of the third vertex
 
 
 
@@ -152,7 +146,6 @@ void SimpleShapeApplication::frame() {
      GL_UNSIGNED_INT,   // type
      (void*)0           // element array buffer offset
  );
-    //OGL_CALL(glDrawArrays(GL_TRIANGLES, 0, 9));
     OGL_CALL(glBindVertexArray(0));
 }
 
