@@ -143,12 +143,13 @@ void SimpleShapeApplication::init() {
 
 
     // Uniforms Color
+    static constexpr float strength{ 0.5f };
+    static constexpr float mix_color[3] = { 0.f, 0.f, 1.f };
+    static constexpr GLsizeiptr colorUniformBufferSize{ 8 * sizeof(GLfloat) };
     GLuint colorUniformBufferHandle;
     OGL_CALL(glGenBuffers(1, &colorUniformBufferHandle));
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, colorUniformBufferHandle));
-    static constexpr float strength{ 1.0 };
-    static constexpr float mix_color[3] = { -0.5, -0.5, 0.5 };
-    OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, 8 * sizeof(GLfloat), nullptr, GL_STATIC_DRAW));
+    OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, colorUniformBufferSize, nullptr, GL_STATIC_DRAW));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &strength));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 3 * sizeof(float), mix_color));
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
@@ -158,8 +159,8 @@ void SimpleShapeApplication::init() {
     static constexpr float theta{ 1.f * glm::pi<GLfloat>() / 6.f };    // 30 degrees
     static const auto cs = std::cos(theta);
     static const auto ss = std::sin(theta);
-    static const glm::vec2 scale{ 0.5, 0.5 };
-    static const glm::vec2 trans{ 0.0,  -0.25 };
+    static const glm::vec2 scale{ 0.5f, 0.5f };
+    static const glm::vec2 trans{ 0.0f,  -0.25f };
     static const glm::mat2 rot{ cs,ss,-ss,cs };
     static constexpr GLsizeiptr tranformUniformBufferSize{ 10 * sizeof(GLfloat) };
     GLuint tranformUniformBufferHandle;

@@ -10,6 +10,6 @@ layout(std140, binding = 0) uniform Mixer {
 
 
 void main() {
+    outColor.rgb = mix(fragColor.rgb, mix_color, strength);
     outColor.a = fragColor.a;
-    outColor.rgb = strength * mix_color + fragColor.rgb;
 }
