@@ -3,6 +3,8 @@
 #include "app.h"
 #include "spdlog/spdlog.h"
 #include "glad/gl.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/constants.hpp"
 #include "Application/utils.h"
 #include <array>
 
@@ -112,6 +114,7 @@ void SimpleShapeApplication::init() {
         exit(-1);
     }
 
+
     static constexpr Utilities::Position A{ -0.5f, 0.0f, 0.0f };
     static constexpr Utilities::Position B{ 0.0f, 0.5f, 0.0f };
     static constexpr Utilities::Position C{ 0.5f, 0.0f, 0.0f };
@@ -120,7 +123,7 @@ void SimpleShapeApplication::init() {
     Utilities::Triangle firstTriangle{ {A, Utilities::Colors::red}, {B, Utilities::Colors::red}, {C, Utilities::Colors::red} };
     Utilities::Triangle secondTriangle{ {A, Utilities::Colors::green}, {C, Utilities::Colors::green}, {E, Utilities::Colors::green} };
     Utilities::Triangle thirdTriangle{ {C, Utilities::Colors::green}, {D, Utilities::Colors::green}, {E, Utilities::Colors::green} };
-    auto data{ Utilities::generateTrianglesData({firstTriangle, secondTriangle, thirdTriangle}) };
+    const auto data{ Utilities::generateTrianglesData({firstTriangle, secondTriangle, thirdTriangle}) };
 
     auto vertices{ data.first };
     auto indices{ data.second };
@@ -139,17 +142,36 @@ void SimpleShapeApplication::init() {
     OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 
-    // Uniforms
-    GLuint uniformBufferHandle;
-    OGL_CALL(glGenBuffers(1, &uniformBufferHandle));
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferHandle));
+    // Uniforms Color
+    GLuint colorUniformBufferHandle;
+    OGL_CALL(glGenBuffers(1, &colorUniformBufferHandle));
+    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, colorUniformBufferHandle));
     static constexpr float strength{ 1.0 };
     static constexpr float mix_color[3] = { -0.5, -0.5, 0.5 };
     OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, 8 * sizeof(GLfloat), nullptr, GL_STATIC_DRAW));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &strength));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 3 * sizeof(float), mix_color));
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, uniformBufferHandle));
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, colorUniformBufferHandle));
+
+    // Uniforms Transformations
+    static constexpr float theta{ 1.f * glm::pi<GLfloat>() / 6.f };    // 30 degrees
+    static const auto cs = std::cos(theta);
+    static const auto ss = std::sin(theta);
+    static const glm::vec2 scale{ 0.5, 0.5 };
+    static const glm::vec2 trans{ 0.0,  -0.25 };
+    static const glm::mat2 rot{ cs,ss,-ss,cs };
+    static constexpr GLsizeiptr tranformUniformBufferSize{ 10 * sizeof(GLfloat) };
+    GLuint tranformUniformBufferHandle;
+    OGL_CALL(glGenBuffers(1, &tranformUniformBufferHandle));
+    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, tranformUniformBufferHandle));
+    OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, tranformUniformBufferSize, nullptr, GL_STATIC_DRAW));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), &scale));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), sizeof(glm::vec2), &trans));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::vec2), sizeof(glm::vec2), &rot[0]));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::vec2), sizeof(glm::vec2), &rot[1]));
+    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, tranformUniformBufferHandle));
 
     OGL_CALL(glGenVertexArrays(1, &vao_));
     OGL_CALL(glBindVertexArray(vao_));
