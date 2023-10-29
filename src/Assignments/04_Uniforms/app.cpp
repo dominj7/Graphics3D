@@ -93,8 +93,8 @@ namespace Utilities {
     }
 
     namespace Colors {
-        static constexpr Color red{ 0.8f, 0.0f, 0.0f };
-        static constexpr Color green{ 0.0f, 0.7f, 0.0f };
+        static constexpr Color red{ 1.0f, 0.0f, 0.0f };
+        static constexpr Color green{ 0.0f, 1.0f, 0.0f };
         static constexpr Color gray{ 0.5f, 0.5f, 0.5f };
     } // Colors
 } // Utilities
@@ -126,22 +126,35 @@ void SimpleShapeApplication::init() {
     auto indices{ data.second };
 
 
-    GLuint v_buffer_handle;
-    OGL_CALL(glGenBuffers(1, &v_buffer_handle));
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_handle));
+    GLuint vertexBufferHandle;
+    OGL_CALL(glGenBuffers(1, &vertexBufferHandle));
+    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandle));
     OGL_CALL(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW));
     OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    GLuint elementbuffer;
-    OGL_CALL(glGenBuffers(1, &elementbuffer));
-    OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
+    GLuint indexBufferHandle;
+    OGL_CALL(glGenBuffers(1, &indexBufferHandle));
+    OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferHandle));
     OGL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW));
     OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
+
+    // Uniforms
+    GLuint uniformBufferHandle;
+    OGL_CALL(glGenBuffers(1, &uniformBufferHandle));
+    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferHandle));
+    static constexpr float strength{ 1.0 };
+    static constexpr float mix_color[3] = { -0.5, -0.5, 0.5 };
+    OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, 8 * sizeof(GLfloat), nullptr, GL_STATIC_DRAW));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &strength));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 3 * sizeof(float), mix_color));
+    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, uniformBufferHandle));
+
     OGL_CALL(glGenVertexArrays(1, &vao_));
     OGL_CALL(glBindVertexArray(vao_));
-    OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, v_buffer_handle));
+    OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferHandle));
+    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandle));
 
 
     OGL_CALL(glEnableVertexAttribArray(0));
