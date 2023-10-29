@@ -12,7 +12,7 @@ using GLfloatVec = std::vector<GLfloat>;
 
 namespace Utilities {
     struct Position {
-        GLfloat x, y, z;
+        GLfloat x{}, y{}, z{};
 
         bool operator==(const Position& other) const {
             return x == other.x && y == other.y && z == other.z;
@@ -20,7 +20,7 @@ namespace Utilities {
     };
 
     struct Color {
-        GLfloat r, g, b, a{ 1.0f };
+        GLfloat r{}, g{}, b{}, a{ 1.0f };
 
         bool operator==(const Color& other) const {
             return r == other.r && g == other.g && b == other.b && a == other.a;
@@ -28,8 +28,8 @@ namespace Utilities {
     };
 
     struct Vertex {
-        Position position;
-        Color color;
+        Position position{};
+        Color color{};
 
         GLfloatVec getData() const {
             GLfloatVec verticesData{};
