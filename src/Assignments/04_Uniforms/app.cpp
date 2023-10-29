@@ -55,21 +55,6 @@ namespace Utilities {
             vertices = { first, second, third };
         }
 
-        const GLfloatVec& getData() const {
-            GLfloatVec verticesData{};
-            for (const auto& vertex : vertices) {
-                verticesData.push_back(vertex.position.x);
-                verticesData.push_back(vertex.position.y);
-                verticesData.push_back(vertex.position.z);
-                verticesData.push_back(vertex.color.r);
-                verticesData.push_back(vertex.color.g);
-                verticesData.push_back(vertex.color.b);
-                verticesData.push_back(vertex.color.a);
-            }
-
-            return verticesData;
-        }
-
         const std::array<Vertex, 3>& getVertices() const {
             return vertices;
         }
