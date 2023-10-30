@@ -12,3 +12,7 @@
 Ale proszę usunąć wykomentowane wierzchołki.
 I proszę zmienić nazwe projektu na Indices (duża pierwsza litera).
 
+# Uniforms
+
+30.10.2023 12:00:43 OK
+
