@@ -120,9 +120,9 @@ void SimpleShapeApplication::init() {
     static constexpr Utilities::Position C{ 0.5f, 0.f, 0.f };
     static constexpr Utilities::Position D{ 0.5f, -0.5f, 0.f };
     static constexpr Utilities::Position E{ -0.5f, -0.5f, 0.f };
-    Utilities::Triangle firstTriangle{ {A, Utilities::Colors::red}, {B, Utilities::Colors::red}, {C, Utilities::Colors::red} };
-    Utilities::Triangle secondTriangle{ {A, Utilities::Colors::green}, {C, Utilities::Colors::green}, {E, Utilities::Colors::green} };
-    Utilities::Triangle thirdTriangle{ {C, Utilities::Colors::green}, {D, Utilities::Colors::green}, {E, Utilities::Colors::green} };
+    Utilities::Triangle firstTriangle{ {C, Utilities::Colors::red}, {B, Utilities::Colors::red}, {A, Utilities::Colors::red} };
+    Utilities::Triangle secondTriangle{ {E, Utilities::Colors::green}, {C, Utilities::Colors::green}, {A, Utilities::Colors::green} };
+    Utilities::Triangle thirdTriangle{ {E, Utilities::Colors::green}, {D, Utilities::Colors::green}, {C, Utilities::Colors::green} };
     const auto data{ Utilities::generateTrianglesData({firstTriangle, secondTriangle, thirdTriangle}) };
 
     auto vertices{ data.first };
@@ -197,6 +197,8 @@ void SimpleShapeApplication::init() {
     OGL_CALL(glClearColor(Utilities::Colors::gray.r, Utilities::Colors::gray.g, Utilities::Colors::gray.b, Utilities::Colors::gray.a));
 
     OGL_CALL(glUseProgram(program));
+
+    glEnable(GL_CULL_FACE);
 }
 
 
