@@ -97,7 +97,10 @@ namespace Utilities {
     namespace Colors {
         static constexpr Color red{ 1.f, 0.f, 0.f };
         static constexpr Color green{ 0.f, 1.f, 0.f };
+        static constexpr Color blue{ 0.f, 0.f, 1.f };
+        static constexpr Color yellow{ 1.f, 1.f, 0.f };
         static constexpr Color gray{ 0.5f, 0.5f, 0.5f };
+        static constexpr Color lightGray{ 0.8f, 0.8f, 0.8f };
     } // Colors
 } // Utilities
 
@@ -115,15 +118,18 @@ void SimpleShapeApplication::init() {
     }
 
 
-    static constexpr Utilities::Position A{ -0.5f, 0.f, 0.f };
-    static constexpr Utilities::Position B{ 0.f, 0.5f, 0.f };
-    static constexpr Utilities::Position C{ 0.5f, 0.f, 0.f };
-    static constexpr Utilities::Position D{ 0.5f, -0.5f, 0.f };
-    static constexpr Utilities::Position E{ -0.5f, -0.5f, 0.f };
-    Utilities::Triangle firstTriangle{ {C, Utilities::Colors::red}, {B, Utilities::Colors::red}, {A, Utilities::Colors::red} };
-    Utilities::Triangle secondTriangle{ {E, Utilities::Colors::green}, {C, Utilities::Colors::green}, {A, Utilities::Colors::green} };
-    Utilities::Triangle thirdTriangle{ {E, Utilities::Colors::green}, {D, Utilities::Colors::green}, {C, Utilities::Colors::green} };
-    const auto data{ Utilities::generateTrianglesData({firstTriangle, secondTriangle, thirdTriangle}) };
+    static constexpr Utilities::Position topPos{ 0.f, 0.f, 1.f };
+    static constexpr Utilities::Position bottomLeftPos{ -0.5f, -0.5f, 0.f };
+    static constexpr Utilities::Position bottomRightPos{ 0.5f, -0.5f, 0.f };
+    static constexpr Utilities::Position topRightPos{ 0.5f, 0.5f, 0.f };
+    static constexpr Utilities::Position topLeftPos{ -0.5f, 0.5f, 0.f };
+    static const Utilities::Triangle leftTriangle{ {bottomLeftPos, Utilities::Colors::green}, {topPos, Utilities::Colors::green}, {topLeftPos, Utilities::Colors::green} };
+    static const Utilities::Triangle bottomTiangle{ {bottomLeftPos, Utilities::Colors::yellow}, {bottomRightPos, Utilities::Colors::yellow}, {topPos, Utilities::Colors::yellow} };
+    static const Utilities::Triangle rightTriangle{ {topPos, Utilities::Colors::red}, {bottomRightPos, Utilities::Colors::red}, {topRightPos, Utilities::Colors::red} };
+    static const Utilities::Triangle topTriangle{ {topLeftPos, Utilities::Colors::blue}, {topPos, Utilities::Colors::blue}, {topRightPos, Utilities::Colors::blue} };
+    static const Utilities::Triangle baseFirstTriangle{ {bottomLeftPos, Utilities::Colors::gray}, {topLeftPos, Utilities::Colors::gray}, {topRightPos, Utilities::Colors::gray} };
+    static const Utilities::Triangle baseSecondTriangle{ {bottomLeftPos, Utilities::Colors::gray}, {topRightPos, Utilities::Colors::gray}, {bottomRightPos, Utilities::Colors::gray} };
+    const auto data{ Utilities::generateTrianglesData({leftTriangle, bottomTiangle, rightTriangle, topTriangle, baseFirstTriangle, baseSecondTriangle}) };
 
     auto vertices{ data.first };
     auto indices{ data.second };
@@ -194,17 +200,18 @@ void SimpleShapeApplication::init() {
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
 
-    OGL_CALL(glClearColor(Utilities::Colors::gray.r, Utilities::Colors::gray.g, Utilities::Colors::gray.b, Utilities::Colors::gray.a));
+    OGL_CALL(glClearColor(Utilities::Colors::lightGray.r, Utilities::Colors::lightGray.g, Utilities::Colors::lightGray.b, Utilities::Colors::lightGray.a));
 
     OGL_CALL(glUseProgram(program));
 
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
 }
 
 
 void SimpleShapeApplication::frame() {
     OGL_CALL(glBindVertexArray(vao_));
-    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
     OGL_CALL(glBindVertexArray(0));
 }
 
