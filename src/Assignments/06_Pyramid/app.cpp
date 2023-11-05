@@ -58,6 +58,10 @@ namespace Utilities {
             vertices = { first, second, third };
         }
 
+        Triangle(Position first, Position second, Position third, Color color = { 0.f, 0.f, 0.f }) {
+            vertices = { Vertex{ first, color }, Vertex{ second, color }, Vertex{ third, color } };
+        }
+
         const std::array<Vertex, 3>& getVertices() const {
             return vertices;
         }
@@ -123,12 +127,12 @@ void SimpleShapeApplication::init() {
     static constexpr Utilities::Position bottomRightPos{ 0.5f, -0.5f, 0.f };
     static constexpr Utilities::Position topRightPos{ 0.5f, 0.5f, 0.f };
     static constexpr Utilities::Position topLeftPos{ -0.5f, 0.5f, 0.f };
-    static const Utilities::Triangle leftTriangle{ {bottomLeftPos, Utilities::Colors::green}, {topPos, Utilities::Colors::green}, {topLeftPos, Utilities::Colors::green} };
-    static const Utilities::Triangle bottomTiangle{ {bottomLeftPos, Utilities::Colors::yellow}, {bottomRightPos, Utilities::Colors::yellow}, {topPos, Utilities::Colors::yellow} };
-    static const Utilities::Triangle rightTriangle{ {topPos, Utilities::Colors::red}, {bottomRightPos, Utilities::Colors::red}, {topRightPos, Utilities::Colors::red} };
-    static const Utilities::Triangle topTriangle{ {topLeftPos, Utilities::Colors::blue}, {topPos, Utilities::Colors::blue}, {topRightPos, Utilities::Colors::blue} };
-    static const Utilities::Triangle baseFirstTriangle{ {bottomLeftPos, Utilities::Colors::gray}, {topLeftPos, Utilities::Colors::gray}, {topRightPos, Utilities::Colors::gray} };
-    static const Utilities::Triangle baseSecondTriangle{ {bottomLeftPos, Utilities::Colors::gray}, {topRightPos, Utilities::Colors::gray}, {bottomRightPos, Utilities::Colors::gray} };
+    static const Utilities::Triangle leftTriangle{ bottomLeftPos, topPos, topLeftPos, Utilities::Colors::green };
+    static const Utilities::Triangle bottomTiangle{ bottomLeftPos, bottomRightPos, topPos, Utilities::Colors::yellow };
+    static const Utilities::Triangle rightTriangle{ topPos, bottomRightPos, topRightPos, Utilities::Colors::red };
+    static const Utilities::Triangle topTriangle{ topLeftPos, topPos, topRightPos, Utilities::Colors::blue };
+    static const Utilities::Triangle baseFirstTriangle{ bottomLeftPos, topLeftPos, topRightPos, Utilities::Colors::gray };
+    static const Utilities::Triangle baseSecondTriangle{ bottomLeftPos, topRightPos, bottomRightPos, Utilities::Colors::gray };
     const auto data{ Utilities::generateTrianglesData({leftTriangle, bottomTiangle, rightTriangle, topTriangle, baseFirstTriangle, baseSecondTriangle}) };
 
     auto vertices{ data.first };
