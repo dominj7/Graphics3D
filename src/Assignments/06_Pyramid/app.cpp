@@ -141,39 +141,6 @@ void SimpleShapeApplication::init() {
     OGL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW));
     OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-
-    // --Uniforms Color--
-    static constexpr float strength{ 0.5f };
-    static constexpr float mix_color[3] = { 0.f, 0.f, 1.f };
-    static constexpr GLsizeiptr colorUniformBufferSize{ 8 * sizeof(GLfloat) };
-    GLuint colorUniformBufferHandle;
-    OGL_CALL(glGenBuffers(1, &colorUniformBufferHandle));
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, colorUniformBufferHandle));
-    OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, colorUniformBufferSize, nullptr, GL_STATIC_DRAW));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLfloat), &strength));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(GLfloat), 3 * sizeof(float), mix_color));
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, colorUniformBufferHandle));
-
-    // --Uniforms Transformations--
-    static constexpr float theta{ 1.f * glm::pi<GLfloat>() / 6.f };    // 30 degrees
-    static const auto cs = std::cos(theta);
-    static const auto ss = std::sin(theta);
-    static const glm::vec2 scale{ 0.5f, 0.5f };
-    static const glm::vec2 trans{ 0.0f,  -0.25f };
-    static const glm::mat2 rot{ cs,ss,-ss,cs };
-    static constexpr GLsizeiptr tranformUniformBufferSize{ 10 * sizeof(GLfloat) };
-    GLuint tranformUniformBufferHandle;
-    OGL_CALL(glGenBuffers(1, &tranformUniformBufferHandle));
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, tranformUniformBufferHandle));
-    OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, tranformUniformBufferSize, nullptr, GL_STATIC_DRAW));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec2), &scale));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec2), sizeof(glm::vec2), &trans));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::vec2), sizeof(glm::vec2), &rot[0]));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::vec2), sizeof(glm::vec2), &rot[1]));
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, tranformUniformBufferHandle));
-
     OGL_CALL(glGenVertexArrays(1, &vao_));
     OGL_CALL(glBindVertexArray(vao_));
     OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferHandle));
@@ -209,12 +176,12 @@ void SimpleShapeApplication::init() {
     static constexpr auto farPlane{ 20.f };
     glm::mat4 P{ glm::perspective(fieldOfView, aspectRatio, nearPlane, farPlane) };
 
-    static constexpr auto cameraPosition = glm::vec3{ 0.f, -2.f, 2.f };
+    static constexpr auto cameraPosition = glm::vec3{ 0.f, 0.f, 2.f };
     static constexpr auto target = glm::vec3{ 0.f, 0.f, 0.f };
-    static constexpr auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
+    static constexpr auto upVector = glm::vec3{ 0.f, 1.f, 0.f };
     glm::mat4 V{ glm::lookAt(cameraPosition, target, upVector) };
 
-    static constexpr auto translation{ glm::vec3{-1.f, 1.f, 0.f } };
+    static constexpr auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
     glm::mat4 M(1.f);
     M = glm::translate(M, translation);
 
@@ -235,7 +202,7 @@ void SimpleShapeApplication::init() {
 
 void SimpleShapeApplication::frame() {
     OGL_CALL(glBindVertexArray(vao_));
-    glDrawElements( GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr );
+    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
     OGL_CALL(glBindVertexArray(0));
 }
 
