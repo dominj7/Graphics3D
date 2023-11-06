@@ -16,3 +16,12 @@ I proszę zmienić nazwe projektu na Indices (duża pierwsza litera).
 
 30.10.2023 12:00:43 OK
 
+# PVM
+
+6.11.2023 11:38:27 OK
+
+# Pyramid
+
+6.11.2023 11:39:37 OK
+
+
