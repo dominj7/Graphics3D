@@ -3,11 +3,8 @@
 //
 
 #pragma once
-
 #include <vector>
-
 #include "glad/gl.h"
-
 #include "Application/application.h"
 
 
@@ -17,9 +14,10 @@ public:
                                                                                                debug) {}
 
     void init() override;
-
     void frame() override;
+    void framebuffer_resize_callback(int w, int h) override;
 
 private:
     GLuint vao_;
+
 };

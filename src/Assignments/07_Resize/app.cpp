@@ -186,9 +186,9 @@ void SimpleShapeApplication::init() {
     static constexpr auto farPlane{ 20.f };
     glm::mat4 P{ glm::perspective(fieldOfView, aspectRatio, nearPlane, farPlane) };
 
-    static constexpr auto cameraPosition = glm::vec3{ 0.f, 0.f, 2.f };
+    static constexpr auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
     static constexpr auto target = glm::vec3{ 0.f, 0.f, 0.f };
-    static constexpr auto upVector = glm::vec3{ 0.f, 1.f, 0.f };
+    static constexpr auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
     glm::mat4 V{ glm::lookAt(cameraPosition, target, upVector) };
 
     static constexpr auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
@@ -217,5 +217,10 @@ void SimpleShapeApplication::frame() {
     OGL_CALL(glBindVertexArray(vao_));
     glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
     OGL_CALL(glBindVertexArray(0));
+}
+
+void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
+    Application::framebuffer_resize_callback(w, h);
+    glViewport(0, 0, w, h);
 }
 
