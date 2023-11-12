@@ -180,22 +180,22 @@ void SimpleShapeApplication::init() {
 
     auto [w, h] = frame_buffer_size();
     OGL_CALL(glViewport(0, 0, w, h));
-    const auto aspectRatio = static_cast<float>(w) / static_cast<float>(h);
-    static constexpr auto fieldOfView{ glm::radians(45.0f) };
-    static constexpr auto nearPlane{ 0.1f };
-    static constexpr auto farPlane{ 20.f };
-    glm::mat4 P{ glm::perspective(fieldOfView, aspectRatio, nearPlane, farPlane) };
+    aspect_ = static_cast<float>(w) / static_cast<float>(h);
+    fov_ = glm::radians(45.0f);
+    near_ = 0.1f ;
+    far_ = 20.f;
+    P_ = glm::perspective(fov_, aspect_, near_, far_);
 
     static constexpr auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
     static constexpr auto target = glm::vec3{ 0.f, 0.f, 0.f };
     static constexpr auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
-    glm::mat4 V{ glm::lookAt(cameraPosition, target, upVector) };
+    V_ =  glm::lookAt(cameraPosition, target, upVector);
 
     static constexpr auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
-    glm::mat4 M(1.f);
-    M = glm::translate(M, translation);
+    M_ = glm::mat4(1.f);
+    M_ = glm::translate(M_, translation);
 
-    static const glm::mat4 PVM{ P * V * M };
+    static const glm::mat4 PVM{ P_ * V_ * M_ };
 
     // Load all the data into the uniform buffer
     OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_buffer_handle_pvm));

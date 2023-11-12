@@ -6,6 +6,7 @@
 #include <vector>
 #include "glad/gl.h"
 #include "Application/application.h"
+#include <glm//glm.hpp>
 
 
 class SimpleShapeApplication : public xe::Application {
@@ -19,5 +20,14 @@ public:
 
 private:
     GLuint vao_;
+
+    float fov_;     // field of view
+    float aspect_;  // aspect ratio
+    float near_;    // near plane
+    float far_;     // far plane
+
+    glm::mat4 P_;
+    glm::mat4 V_;
+    glm::mat4 M_;
 
 };
