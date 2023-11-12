@@ -21,6 +21,8 @@ public:
 private:
     GLuint vao_;
 
+    GLuint u_trans_buffer_handle_;
+
     float fov_;     // field of view
     float aspect_;  // aspect ratio
     float near_;    // near plane

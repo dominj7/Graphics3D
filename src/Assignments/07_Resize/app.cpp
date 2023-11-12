@@ -170,11 +170,10 @@ void SimpleShapeApplication::init() {
 
 
     // --PVM--
-    GLuint u_buffer_handle_pvm;
     static constexpr size_t bufferPVMSize{ 16 * sizeof(float) };
     // Create a buffer and bind it to GL_UNIFORM_BUFFER
-    OGL_CALL(glGenBuffers(1, &u_buffer_handle_pvm));
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, u_buffer_handle_pvm));
+    OGL_CALL(glGenBuffers(1, &u_trans_buffer_handle_));
+    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, u_trans_buffer_handle_));
     // Allocate memory for the buffer based on the calculated size
     OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, bufferPVMSize, nullptr, GL_STATIC_DRAW));
 
@@ -182,9 +181,8 @@ void SimpleShapeApplication::init() {
     OGL_CALL(glViewport(0, 0, w, h));
     aspect_ = static_cast<float>(w) / static_cast<float>(h);
     fov_ = glm::radians(45.0f);
-    near_ = 0.1f ;
+    near_ = 0.1f;
     far_ = 20.f;
-    P_ = glm::perspective(fov_, aspect_, near_, far_);
 
     static constexpr auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
     static constexpr auto target = glm::vec3{ 0.f, 0.f, 0.f };
@@ -194,14 +192,6 @@ void SimpleShapeApplication::init() {
     static constexpr auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
     M_ = glm::mat4(1.f);
     M_ = glm::translate(M_, translation);
-
-    static const glm::mat4 PVM{ P_ * V_ * M_ };
-
-    // Load all the data into the uniform buffer
-    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_buffer_handle_pvm));
-    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]));
-    // Unbind the buffer
-    OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
 
     OGL_CALL(glClearColor(Utilities::Colors::lightGray.r, Utilities::Colors::lightGray.g, Utilities::Colors::lightGray.b, Utilities::Colors::lightGray.a));
@@ -214,6 +204,12 @@ void SimpleShapeApplication::init() {
 
 
 void SimpleShapeApplication::frame() {
+    P_ = glm::perspective(fov_, aspect_, near_, far_);
+    const glm::mat4 PVM{ P_ * V_ * M_ };
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_trans_buffer_handle_));
+    OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]));
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, u_trans_buffer_handle_));
+
     OGL_CALL(glBindVertexArray(vao_));
     glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
     OGL_CALL(glBindVertexArray(0));
@@ -221,6 +217,7 @@ void SimpleShapeApplication::frame() {
 
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     Application::framebuffer_resize_callback(w, h);
-    glViewport(0, 0, w, h);
+    aspect_ = static_cast<float>(w) / static_cast<float>(h);
+    OGL_CALL(glViewport(0, 0, w, h));
 }
 
