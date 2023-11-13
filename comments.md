@@ -24,4 +24,8 @@ I proszę zmienić nazwe projektu na Indices (duża pierwsza litera).
 
 6.11.2023 11:39:37 OK
 
+# Resize 
+
+2023-11-13 13:05:44 OK
+
 
