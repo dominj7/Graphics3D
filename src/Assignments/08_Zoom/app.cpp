@@ -177,17 +177,21 @@ void SimpleShapeApplication::init() {
     // Allocate memory for the buffer based on the calculated size
     OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, bufferPVMSize, nullptr, GL_STATIC_DRAW));
 
-    auto [w, h] = frame_buffer_size();
-    OGL_CALL(glViewport(0, 0, w, h));
-    aspect_ = static_cast<float>(w) / static_cast<float>(h);
-    fov_ = glm::radians(45.0f);
-    near_ = 0.1f;
-    far_ = 20.f;
+    set_camera(new Camera);
 
     auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
     auto target = glm::vec3{ 0.f, 0.f, 0.f };
     auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
-    V_ =  glm::lookAt(cameraPosition, target, upVector);
+    camera()->look_at(cameraPosition, target, upVector);
+
+    auto [w, h] = frame_buffer_size();
+    OGL_CALL(glViewport(0, 0, w, h));
+    float aspect = static_cast<float>(w) / static_cast<float>(h);
+    float fov = glm::radians(45.0f);
+    float near{ 0.1f };
+    float far{ 20.f };
+    camera()->perspective(fov, aspect, near, far);
+
 
     auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
     M_ = glm::mat4(1.f);
@@ -204,8 +208,7 @@ void SimpleShapeApplication::init() {
 
 
 void SimpleShapeApplication::frame() {
-    P_ = glm::perspective(fov_, aspect_, near_, far_);
-    const glm::mat4 PVM{ P_ * V_ * M_ };
+    const glm::mat4 PVM{ camera_->projection() * camera_->view() * M_ };
     OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_trans_buffer_handle_));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]));
     OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, u_trans_buffer_handle_));
@@ -217,7 +220,7 @@ void SimpleShapeApplication::frame() {
 
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     Application::framebuffer_resize_callback(w, h);
-    aspect_ = static_cast<float>(w) / static_cast<float>(h);
+    camera_->set_aspect(static_cast<float>(w) / static_cast<float>(h));
     OGL_CALL(glViewport(0, 0, w, h));
 }
 
