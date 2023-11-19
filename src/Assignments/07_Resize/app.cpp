@@ -184,12 +184,12 @@ void SimpleShapeApplication::init() {
     near_ = 0.1f;
     far_ = 20.f;
 
-    static constexpr auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
-    static constexpr auto target = glm::vec3{ 0.f, 0.f, 0.f };
-    static constexpr auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
+    auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
+    auto target = glm::vec3{ 0.f, 0.f, 0.f };
+    auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
     V_ =  glm::lookAt(cameraPosition, target, upVector);
 
-    static constexpr auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
+    auto translation{ glm::vec3{ 0.f, 0.f, 0.f } };
     M_ = glm::mat4(1.f);
     M_ = glm::translate(M_, translation);
 
