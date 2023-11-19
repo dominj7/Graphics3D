@@ -226,6 +226,7 @@ void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
 
 void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) {
     Application::scroll_callback(xoffset, yoffset);
-    camera()->zoom(yoffset / 20.0f);
+    static constexpr float sensitive{ 20.f };
+    camera()->zoom( yoffset / sensitive);
 }
 
