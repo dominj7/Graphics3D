@@ -21,6 +21,8 @@ public:
         return camera_;
     }
 
+    void scroll_callback(double xoffset, double yoffset) override;
+
 private:
     GLuint vao_;
 

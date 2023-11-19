@@ -224,3 +224,8 @@ void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     OGL_CALL(glViewport(0, 0, w, h));
 }
 
+void SimpleShapeApplication::scroll_callback(double xoffset, double yoffset) {
+    Application::scroll_callback(xoffset, yoffset);
+    camera()->zoom(yoffset / 20.0f);
+}
+
