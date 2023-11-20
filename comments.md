@@ -28,4 +28,10 @@ I proszę zmienić nazwe projektu na Indices (duża pierwsza litera).
 
 2023-11-13 13:05:44 OK
 
+# Zoom
+
+20.11.2023 18:14:34 OK
+
+
+
 
