@@ -39,7 +39,6 @@ class Camera {
 public:
 
     void look_at(const glm::vec3& eye, const glm::vec3& center, const glm::vec3& up) {
-        //V_ = glm::lookAt(eye, center, up);
         z_ = glm::normalize(eye - center);
         x_ = glm::normalize(glm::cross(up, z_));
         y_ = glm::normalize(glm::cross(z_, x_));
@@ -65,7 +64,6 @@ public:
         aspect_ = aspect;
     }
 
-   // glm::mat4 view() const { return V_; }
 
     glm::mat4 view() const {
         glm::mat4 V(1.0f);
@@ -122,7 +120,6 @@ private:
     float near_;
     float far_;
 
-    // glm::mat4 V_;
     glm::vec3 position_;
     glm::vec3 center_;
     glm::vec3 x_;
