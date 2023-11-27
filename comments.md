@@ -32,6 +32,10 @@ I proszę zmienić nazwe projektu na Indices (duża pierwsza litera).
 
 20.11.2023 18:14:34 OK
 
+# Camera movement
+
+27.11.2023 11:38:14
+W metodzie `frame` najpier podpinają Państo buffor `u_trans_buffer_handle` do punkti 1, a potem do punktu 0. To ostatnie nie ma sensu. Chyba mieli Państwo na myśli `OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, 0))`, ale wtedy to musi być wywołane dopiero po `drawElements`. 
 
 
 
