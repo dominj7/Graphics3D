@@ -25,7 +25,6 @@ public:
     }
 
     void scroll_callback(double xoffset, double yoffset) override;
-    CameraController *controller_;
     void set_controler(CameraController *controller) { controller_ = controller; }
 
 
@@ -34,6 +33,7 @@ private:
 
     GLuint u_trans_buffer_handle_;
 
+    CameraController* controller_;
     Camera* camera_;
     glm::mat4 M_;
 

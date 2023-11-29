@@ -213,10 +213,10 @@ void SimpleShapeApplication::frame() {
     const glm::mat4 PVM{ camera_->projection() * camera_->view() * M_ };
     OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_trans_buffer_handle_));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]));
-    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, u_trans_buffer_handle_));
 
     OGL_CALL(glBindVertexArray(vao_));
     glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, 0))
     OGL_CALL(glBindVertexArray(0));
 }
 
