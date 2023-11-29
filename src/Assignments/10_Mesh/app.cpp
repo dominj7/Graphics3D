@@ -139,35 +139,6 @@ void SimpleShapeApplication::init() {
     auto indices{ data.second };
 
 
-    GLuint vertexBufferHandle;
-    OGL_CALL(glGenBuffers(1, &vertexBufferHandle));
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandle));
-    OGL_CALL(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW));
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    GLuint indexBufferHandle;
-    OGL_CALL(glGenBuffers(1, &indexBufferHandle));
-    OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferHandle));
-    OGL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW));
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-    OGL_CALL(glGenVertexArrays(1, &vao_));
-    OGL_CALL(glBindVertexArray(vao_));
-    OGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferHandle));
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandle));
-
-
-    OGL_CALL(glEnableVertexAttribArray(0));
-    OGL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat),
-        reinterpret_cast<GLvoid*>(0)));
-
-    OGL_CALL(glEnableVertexAttribArray(1));
-    OGL_CALL(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat),
-        reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat))));
-
-    OGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    OGL_CALL(glBindVertexArray(0));
-
 
     // --PVM--
     static constexpr size_t bufferPVMSize{ 16 * sizeof(float) };
@@ -177,10 +148,9 @@ void SimpleShapeApplication::init() {
     // Allocate memory for the buffer based on the calculated size
     OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, bufferPVMSize, nullptr, GL_STATIC_DRAW));
     
+    set_camera(new xe::Camera);
+    set_controler(new xe::CameraController(camera()));
     
-    set_camera(new Camera);
-    set_controler(new CameraController(camera()));
-
     auto cameraPosition = glm::vec3{ 2.f, 1.f, 2.f };
     auto target = glm::vec3{ 0.f, 0.f, 0.f };
     auto upVector = glm::vec3{ 0.f, 0.f, 1.f };
@@ -200,6 +170,17 @@ void SimpleShapeApplication::init() {
     M_ = glm::translate(M_, translation);
 
 
+    auto pyramid = new xe::Mesh(7 * sizeof(float), vertices.size() * sizeof(float), GL_STATIC_DRAW,
+                             indices.size() * sizeof(unsigned int), GL_UNSIGNED_INT, GL_STATIC_DRAW);
+
+    pyramid->load_vertices(0, vertices.size() * sizeof(float), vertices.data());            
+    pyramid->add_attribute(xe::AttributeType::POSITION, 3, GL_FLOAT, 0);
+    pyramid->add_attribute(xe::AttributeType::COLOR_0, 4, GL_FLOAT, 3 * sizeof(GLfloat));
+    pyramid->load_indices(0, indices.size() * sizeof(unsigned int), indices.data());
+
+    pyramid->add_primitive(0, indices.size());
+    add_mesh(pyramid);
+
     OGL_CALL(glClearColor(Utilities::Colors::lightGray.r, Utilities::Colors::lightGray.g, Utilities::Colors::lightGray.b, Utilities::Colors::lightGray.a));
 
     OGL_CALL(glUseProgram(program));
@@ -210,15 +191,15 @@ void SimpleShapeApplication::init() {
 
 
 void SimpleShapeApplication::frame() {
-    const glm::mat4 PVM{ camera_->projection() * camera_->view() * M_ };
+    glm::mat4 PVM{ camera_->projection() * camera_->view() * M_ };
     OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_trans_buffer_handle_));
     OGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]));
 
-    OGL_CALL(glBindVertexArray(vao_));
-    glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
-    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, 0))
-    OGL_CALL(glBindVertexArray(0));
+    for (auto m: meshes_)
+        m->draw();
+    OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, 0));
 }
+
 
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     Application::framebuffer_resize_callback(w, h);

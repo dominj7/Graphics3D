@@ -2,8 +2,9 @@
 #include <vector>
 #include "glad/gl.h"
 #include "Application/application.h"
-#include "camera.h"
-#include "camera_controller.h"
+#include "Engine/camera.h"
+#include "Engine/camera_controller.h"
+#include "Engine/Mesh.h"
 #include <glm//glm.hpp>
 
 
@@ -17,24 +18,30 @@ public:
     void mouse_button_callback(int button, int action, int mods) override;
     void cursor_position_callback(double x, double y) override;
 
-    void set_camera(Camera* camera) { camera_ = camera; }
+    void set_camera(xe::Camera* camera) { camera_ = camera; }
 
-    Camera* camera() const {
+    xe::Camera* camera() const {
         assert(camera_);
         return camera_;
     }
 
     void scroll_callback(double xoffset, double yoffset) override;
-    void set_controler(CameraController *controller) { controller_ = controller; }
+    xe::CameraController *controller_;
+    void set_controler(xe::CameraController *controller) { controller_ = controller; }
+    
+    
+    std::vector<xe::Mesh*> meshes_; 
 
+    void add_mesh(xe::Mesh *mesh) {
+        meshes_.push_back(mesh);
+    }
 
 private:
     GLuint vao_;
 
     GLuint u_trans_buffer_handle_;
 
-    CameraController* controller_;
-    Camera* camera_;
+    xe::Camera* camera_;
     glm::mat4 M_;
 
 };
