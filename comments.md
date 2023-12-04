@@ -37,5 +37,11 @@ I proszę zmienić nazwe projektu na Indices (duża pierwsza litera).
 27.11.2023 11:38:14
 W metodzie `frame` najpier podpinają Państo buffor `u_trans_buffer_handle` do punkti 1, a potem do punktu 0. To ostatnie nie ma sensu. Chyba mieli Państwo na myśli `OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, 0))`, ale wtedy to musi być wywołane dopiero po `drawElements`. 
 
+4.12.2023 14:14:14 OK
+
+# Mesh
+
+4.12.2023 14:15:04 OK
+
 
 
