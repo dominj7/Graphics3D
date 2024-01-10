@@ -17,7 +17,7 @@ void main() {
     if (use_vertex_colors)
     color = vertex_color;
 
-    color*=Kd;
+    color*= Kd;
 
     if (use_map_Kd)
     color*=texture(map_Kd, vertex_texcoord_0);
@@ -26,3 +26,4 @@ void main() {
 
 
 }
+

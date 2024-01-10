@@ -7,6 +7,7 @@
 #include "glm/gtc/constants.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Application/utils.h"
+#include "Engine/KdMaterial.h"
 #include <array>
 
 
@@ -101,8 +102,10 @@ namespace Utilities {
     namespace Colors {
         static constexpr Color red{ 1.f, 0.f, 0.f };
         static constexpr Color green{ 0.f, 1.f, 0.f };
-        static constexpr Color blue{ 0.f, 0.f, 1.f };
-        static constexpr Color yellow{ 1.f, 1.f, 0.f };
+        //static constexpr Color blue{ 0.f, 0.f, 1.f };
+        static constexpr Color blue{ 1.f, 1.f, 0.f };
+        //static constexpr Color yellow{ 1.f, 1.f, 0.f };
+        static constexpr Color yellow{ 1.0f, 1.0f, 0.0f };
         static constexpr Color gray{ 0.5f, 0.5f, 0.5f };
         static constexpr Color lightGray{ 0.8f, 0.8f, 0.8f };
     } // Colors
@@ -110,17 +113,14 @@ namespace Utilities {
 
 
 void SimpleShapeApplication::init() {
-    auto program = xe::utils::create_program(
-        {
-            {GL_VERTEX_SHADER,   std::string(PROJECT_DIR) + "/shaders/base_vs.glsl"},
-            {GL_FRAGMENT_SHADER, std::string(PROJECT_DIR) + "/shaders/base_fs.glsl"}
-        });
-
-    if (!program) {
-        SPDLOG_CRITICAL("Invalid program");
-        exit(-1);
-    }
-
+    
+    xe::KdMaterial::init();
+    auto kd_white_material = new xe::KdMaterial(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    auto kd_red_material = new xe::KdMaterial(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    auto kd_blue_material = new xe::KdMaterial(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    auto kd_yellow_material = new xe::KdMaterial(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    auto kd_green_material = new xe::KdMaterial(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    auto kd_grey_material = new xe::KdMaterial(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
     
     static constexpr Utilities::Position topPos{ 0.f, 0.f, 1.f };
     static constexpr Utilities::Position bottomLeftPos{ -0.5f, -0.5f, 0.f };
@@ -178,12 +178,17 @@ void SimpleShapeApplication::init() {
     pyramid->add_attribute(xe::AttributeType::COLOR_0, 4, GL_FLOAT, 3 * sizeof(GLfloat));
     pyramid->load_indices(0, indices.size() * sizeof(unsigned int), indices.data());
 
-    pyramid->add_primitive(0, indices.size());
+    //pyramid->add_primitive(0, indices.size());
+    pyramid->add_primitive(0, 3, kd_green_material);
+    pyramid->add_primitive(3, 6, kd_blue_material);
+    pyramid->add_primitive(6, 9, kd_red_material);
+    pyramid->add_primitive(9, 12, kd_yellow_material);
+    pyramid->add_primitive(12, 15, kd_grey_material);
+    pyramid->add_primitive(15, 18, kd_grey_material);
+
     add_mesh(pyramid);
 
     OGL_CALL(glClearColor(Utilities::Colors::lightGray.r, Utilities::Colors::lightGray.g, Utilities::Colors::lightGray.b, Utilities::Colors::lightGray.a));
-
-    OGL_CALL(glUseProgram(program));
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
