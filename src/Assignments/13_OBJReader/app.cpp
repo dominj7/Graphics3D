@@ -11,6 +11,7 @@
 #include <array>
 #include "stb/stb_image.h"
 
+
 using GLuintVec = std::vector<GLuint>;
 using GLfloatVec = std::vector<GLfloat>;
 
@@ -40,6 +41,7 @@ namespace Utilities {
         }
     };
     
+
     struct Vertex {
         Position position{};
         Color color{};
@@ -68,6 +70,8 @@ namespace Utilities {
             vertices = { first, second, third };
             
         }
+
+       
 
         Triangle(Position first, Position second, Position third, Color color = { 0.f, 0.f, 0.f }) {
             vertices = { Vertex{ first, color }, Vertex{ second, color }, Vertex{ third, color } };
@@ -163,20 +167,23 @@ void SimpleShapeApplication::init() {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
+        // Set texture parameters (filtering methods)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        // Load the image data into the texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+        // Free the image data
     stbi_image_free(img);
 
     // --PVM--
     static constexpr size_t bufferPVMSize{ 16 * sizeof(float) };
-
+    // Create a buffer and bind it to GL_UNIFORM_BUFFER
     OGL_CALL(glGenBuffers(1, &u_trans_buffer_handle_));
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, u_trans_buffer_handle_));
-    
+    // Allocate memory for the buffer based on the calculated size
     OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, bufferPVMSize, nullptr, GL_STATIC_DRAW));
     
     set_camera(new xe::Camera);
@@ -201,23 +208,17 @@ void SimpleShapeApplication::init() {
     M_ = glm::translate(M_, translation);
 
 
-    auto pyramid = new xe::Mesh(5 * sizeof(float), vertices.size() * sizeof(float), GL_STATIC_DRAW,
-                             indices.size() * sizeof(unsigned char), GL_UNSIGNED_BYTE, GL_STATIC_DRAW);
-
-    pyramid->load_vertices(0, vertices.size() * sizeof(float), vertices.data());            
-    pyramid->add_attribute(xe::AttributeType::POSITION, 3, GL_FLOAT, 0);
-    pyramid->add_attribute(xe::AttributeType::TEXCOORD_0, 2, GL_FLOAT, 3 * sizeof(GLfloat));
-    pyramid->load_indices(0, indices.size() * sizeof(unsigned char), indices.data());
-
-    pyramid->add_primitive(0, 18, new xe::KdMaterial({1.f, 1.f, 1.0f, 1.0f}, false, textureID));
-
+    auto pyramid = xe::load_mesh_from_obj(std::string(ROOT_DIR) + "/Models/blue_marble.obj", std::string(ROOT_DIR) + "/Models");
     add_mesh(pyramid);
+
+    
 
     OGL_CALL(glClearColor(0.81, 0.81, 0.81, 1.0 ));
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 }
+
 
 void SimpleShapeApplication::frame() {
     glm::mat4 PVM{ camera_->projection() * camera_->view() * M_ };
@@ -228,6 +229,7 @@ void SimpleShapeApplication::frame() {
         m->draw();
     OGL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 1, 0));
 }
+
 
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     Application::framebuffer_resize_callback(w, h);
