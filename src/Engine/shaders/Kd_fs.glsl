@@ -12,6 +12,12 @@ layout(std140, binding=0) uniform Material {
 
 uniform sampler2D map_Kd;
 
+vec3 srgb_gamma_correction(vec3 color) {
+   color = clamp(color, 0.0, 1.0);
+   color = mix(color * 12.92, (1.055 * pow(color, vec3(1.0 / 2.4))) - 0.055, step(0.0031308, color));
+   return color;
+}
+
 void main() {
     vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
     if (use_vertex_colors)
@@ -19,11 +25,11 @@ void main() {
 
     color*= Kd;
 
-    if (use_map_Kd)
+    if (use_map_Kd){
     color*=texture(map_Kd, vertex_texcoord_0);
-
+    color.rgb = srgb_gamma_correction(color.rgb);
+    }
     vFragColor = color;
 
 
 }
-
