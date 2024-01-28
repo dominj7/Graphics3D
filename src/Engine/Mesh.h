@@ -34,6 +34,7 @@ namespace xe {
 
         virtual ~Mesh() {};
 
+
         void load_vertices(size_t offset, size_t size, void *data);
 
         void load_indices(size_t offset, size_t size, void *data);
@@ -49,6 +50,8 @@ namespace xe {
             primitives_.emplace_back(start, end);
         }
 
+
+
         void add_primitive(GLuint start, GLuint end, const Material *material) {
             primitives_.emplace_back(start, end, material);
         }
@@ -57,7 +60,7 @@ namespace xe {
 
         struct Primitive {
             Primitive(GLuint start, GLuint end) :
-                    start(start), end(end), material(xe::null_material) {}
+                    start(start), end(end), material(xe::NullMaterial::null_material()) {}
 
             Primitive(GLuint start, GLuint end, const Material *material) :
                     start(start), end(end), material(material) {}

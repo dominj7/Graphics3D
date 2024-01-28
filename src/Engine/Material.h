@@ -25,10 +25,16 @@ namespace xe {
     public:
 
         void bind() const override {};
+
+        static NullMaterial *null_material() {
+            if(!null_material_)
+                null_material_ = new NullMaterial;
+            return null_material_;
+        };
+
+    private:
+        static NullMaterial* null_material_;
     };
 
-    extern const NullMaterial *null_material;
 
 }
-
-

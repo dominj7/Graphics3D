@@ -3,18 +3,15 @@
 //
 
 
-
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
 #include "mesh_loader.h"
 
-
 #include <memory>
-
-
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
 #include "spdlog/spdlog.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
@@ -30,6 +27,7 @@ namespace xe {
     using uint = unsigned int;
 
     Mesh *load_mesh_from_obj(std::string path, std::string mtl_dir) {
+
 
         auto smesh = xe::load_smesh_from_obj(path, mtl_dir);
         if (smesh.vertex_coords.empty())
@@ -50,13 +48,18 @@ namespace xe {
         size_t stride = n_floats_per_vertex * sizeof(GLfloat);
 
         auto n_vertices = smesh.vertex_coords.size();
-        auto n_indices = 3 * smesh.faces.size();
+        auto n_indices = 3 * smesh.faces.size(); //assumes triangles
+
+        SPDLOG_DEBUG("Loaded sMesh n_floats_per_vertex from {} : {} n_vertices: {} n_indices: {}", path,
+                     n_floats_per_vertex,
+                     n_vertices, n_indices);
 
         size_t vertex_buffer_size = smesh.vertex_coords.size() * stride;
         size_t index_buffer_size = smesh.faces.size() * 3 * sizeof(uint16_t);
 
-        auto mesh = new Mesh(stride, vertex_buffer_size, GL_STATIC_DRAW, index_buffer_size, GL_UNSIGNED_SHORT,
-                             GL_STATIC_DRAW);
+        SPDLOG_DEBUG("vertex_buffer_size: {} index_buffer_size: {}", vertex_buffer_size, index_buffer_size);
+        auto mesh = new Mesh(stride, vertex_buffer_size, GL_STATIC_DRAW,
+                             index_buffer_size, GL_UNSIGNED_SHORT, GL_STATIC_DRAW);
 
 
         mesh->load_indices(0, n_indices * sizeof(uint16_t), smesh.faces.data());
@@ -71,7 +74,7 @@ namespace xe {
 
             auto v_offset = offset;
             for (auto i = 0; i < smesh.vertex_coords.size(); i++, v_offset += stride) {
-                SPDLOG_DEBUG("vertex[{}] {} ", i, glm::to_string(smesh.vertex_coords[i]));
+                SPDLOG_TRACE("vertex[{}] {} ", i, glm::to_string(smesh.vertex_coords[i]));
                 std::memcpy(v_ptr + v_offset, glm::value_ptr(smesh.vertex_coords[i]), sizeof(glm::vec3));
             }
         }
@@ -84,7 +87,7 @@ namespace xe {
 
                 auto v_offset = offset;
                 for (auto i = 0; i < smesh.vertex_texcoords[it].size(); i++, v_offset += stride) {
-                    SPDLOG_DEBUG("texcoord[{}] {} ", i, glm::to_string(smesh.vertex_texcoords[0][i]));
+                    SPDLOG_TRACE("texcoord[{}] {} ", i, glm::to_string(smesh.vertex_texcoords[0][i]));
                     std::memcpy(v_ptr + v_offset, glm::value_ptr(smesh.vertex_texcoords[0][i]), sizeof(glm::vec2));
                 }
                 offset += 2 * sizeof(GLfloat);
@@ -96,7 +99,7 @@ namespace xe {
 
             auto v_offset = offset;
             for (auto i = 0; i < smesh.vertex_normals.size(); i++, v_offset += stride) {
-                SPDLOG_DEBUG("normal[{}] {} ", i, glm::to_string(smesh.vertex_normals[i]));
+                SPDLOG_TRACE("normal[{}] {} ", i, glm::to_string(smesh.vertex_normals[i]));
                 std::memcpy(v_ptr + v_offset, glm::value_ptr(smesh.vertex_normals[i]), sizeof(glm::vec3));
             }
 
@@ -113,20 +116,35 @@ namespace xe {
 
         for (int i = 0; i < smesh.submeshes.size(); i++) {
             auto sm = smesh.submeshes[i];
-            SPDLOG_DEBUG("Adding submesh {:4d} {:4d} {:4d}", i, sm.start, sm.end);
-            Material *material = (Material *) (xe::null_material);
+
+            Material *material = (Material *) xe::NullMaterial::null_material();
             if (sm.mat_idx >= 0) {
                 auto mat = smesh.materials[sm.mat_idx];
+                SPDLOG_DEBUG("Material illum {}", mat.illum);
                 switch (mat.illum) {
                     case 0:
                         material = mat_functions["KdMaterial"](mat, mtl_dir);
                         break;
                     case 1:
-                        material = mat_functions["PhongMaterial"](mat, mtl_dir);
+                        material = mat_functions["BlinnPhongMaterial"](mat, mtl_dir);
+                        break;
+                    case 2:
+                        material = mat_functions["BlinnPhongMaterial"](mat, mtl_dir);
+                        break;
+                    case 11:
+                        material = mat_functions["PBRMaterial"](mat, mtl_dir);
+                        break;
+                    default:
+                        spdlog::error("Unknown Illumimination model {}", mat.illum);
                         break;
                 }
-                mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
+                if (!material)
+                    material = (Material *) (xe::NullMaterial::null_material());
+
             }
+
+            SPDLOG_DEBUG("Adding primitive {:4d} {:4d} {:4d}", i, 3 * sm.start, 3 * sm.end);
+            mesh->add_primitive(3 * sm.start, 3 * sm.end, material);
         }
 
         return mesh;
@@ -134,40 +152,16 @@ namespace xe {
 
     mat_function_t add_mat_function(std::string name, mat_function_t func) {
         mat_functions[name] = func;
-        SPDLOG_INFO(mat_functions.empty());
         return func;
     }
-    }
 
-#if 0
-namespace {
-
-    xe::Material *make_color_material(const xe::mtl_material_t &mat, std::string mtl_dir) {
-
-        glm::vec4 color;
-        for (int i = 0; i < 3; i++)
-            color[i] = mat.diffuse[i];
-        color[3] = 1.0;
-        SPDLOG_DEBUG("Adding ColorMaterial {}", glm::to_string(color));
-        auto material = new xe::KdMaterial(color);
-        if (!mat.diffuse_texname.empty()) {
-            auto texture = xe::create_texture(mtl_dir + "/" + mat.diffuse_texname);
-            SPDLOG_DEBUG("Adding Texture {} {:1d}", mat.diffuse_texname, texture);
-            if (texture > 0) {
-                material->set_texture(texture);
-            }
+    mat_function_t get_mat_function(std::string name) {
+        auto it = mat_functions.find(name);
+        if (it != mat_functions.end()) {
+            return it->second;
+        } else {
+            spdlog::error("Cannot find material function {}", name);
+            return nullptr;
         }
-
-        return material;
     }
-
-    glm::vec4 get_color(const float c[3]) {
-        glm::vec4 color;
-        for (int i = 0; i < 3; i++)
-            color[i] = c[i];
-        color[3] = 1.0;
-        return color;
-    }
-
 }
-#endif
