@@ -16,117 +16,6 @@
 using GLuintVec = std::vector<GLuint>;
 using GLfloatVec = std::vector<GLfloat>;
 
-namespace Utilities {
-    struct Position {
-        GLfloat x{}, y{}, z{};
-
-        bool operator==(const Position& other) const {
-            return x == other.x && y == other.y && z == other.z;
-        }
-    };
-
-    struct Color {
-        GLfloat r{}, g{}, b{}, a{ 1.0f };
-
-        bool operator==(const Color& other) const {
-            return r == other.r && g == other.g && b == other.b && a == other.a;
-        }
-    };
-
-    struct Texture
-    {
-        GLfloat x{}, y{};
-
-        bool operator==(const Texture& other) const {
-            return x == other.x && y == other.y;
-        }
-    };
-    
-
-    struct Vertex {
-        Position position{};
-        Color color{};
-
-        GLfloatVec getData() const {
-            GLfloatVec verticesData{};
-            verticesData.push_back(position.x);
-            verticesData.push_back(position.y);
-            verticesData.push_back(position.z);
-            verticesData.push_back(color.r);
-            verticesData.push_back(color.g);
-            verticesData.push_back(color.b);
-            verticesData.push_back(color.a);
-
-            return verticesData;
-        }
-
-        bool operator==(const Vertex& other) const {
-            return position == other.position && color == other.color;
-            }
-    };
-
-    class Triangle {
-    public:
-        Triangle(Vertex first, Vertex second, Vertex third) {
-            vertices = { first, second, third };
-            
-        }
-
-       
-
-        Triangle(Position first, Position second, Position third, Color color = { 0.f, 0.f, 0.f }) {
-            vertices = { Vertex{ first, color }, Vertex{ second, color }, Vertex{ third, color } };
-        }
-
-        const std::array<Vertex, 3>& getVertices() const {
-            return vertices;
-        }
-
-    private:
-        std::array<Vertex, 3> vertices;
-    };
-
-    std::pair<GLfloatVec, GLuintVec> generateTrianglesData(const std::vector<Triangle>& triangles) {
-        std::vector<Vertex> vertices{};
-        GLuintVec indices{};
-        GLuint indexCounter{};
-
-        for (const auto& triangle : triangles) {
-            for (const auto& triangleVertex : triangle.getVertices()) {
-                if (auto it = std::find_if(std::begin(vertices), std::end(vertices), [triangleVertex](Vertex vertex) {
-                    return triangleVertex == vertex;
-                    }); it == std::end(vertices)) {
-                    vertices.push_back(triangleVertex);
-                    indices.push_back(indexCounter++);
-                }
-                else {
-                    indices.push_back(std::distance(std::begin(vertices), it));
-                }
-            }
-        }
-
-        GLfloatVec verticesData{};
-        for (const auto& vertex : vertices) {
-            const auto vertexData{ vertex.getData() };
-            verticesData.insert(std::end(verticesData), std::begin(vertexData), std::end(vertexData));
-        }
-
-        return std::pair<GLfloatVec, GLuintVec>{verticesData, indices};
-    }
-
-    namespace Colors {
-        static constexpr Color red_top{ 1.f, 0.f, 0.f };
-        static constexpr Color green_top{ 1.f, 1.f, 0.f };
-        static constexpr Color blue_top{ 0.f, 0.f, 0.f };
-        static constexpr Color orange_top{ 0.0f, 1.0f, 0.0f };
-        static constexpr Color red_green_bottom{ 0.1910, 0.5000, 0.0f };
-        static constexpr Color red_blue_bottom{ 0.5000, 0.8090, 0.0f };
-        static constexpr Color orange_bluebottom{ 0.8090 , 0.5000, 0.0f };
-        static constexpr Color orange_green_bottom{ 0.5000, 0.1910, 0.0f };
-    } // Colors
-
-} // Utilities
-
 
 void SimpleShapeApplication::init() {
     
@@ -140,7 +29,7 @@ void SimpleShapeApplication::init() {
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, u_trans_buffer_handle_));
     OGL_CALL(glBufferData(GL_UNIFORM_BUFFER, bufferPVMSize, nullptr, GL_STATIC_DRAW));
 
-    static constexpr size_t bufferLightSize{ 2*sizeof(glm::vec3)+xe::MAX_POINT_LIGHTS*sizeof(xe::PointLight) }; // Assuming a single vec3 for ambient light
+    static constexpr size_t bufferLightSize{ 2*sizeof(glm::vec3)+xe::MAX_POINT_LIGHTS*sizeof(xe::PointLight) }; 
 
     OGL_CALL(glGenBuffers(1, &u_light_buffer_handle_));
     OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, u_light_buffer_handle_));
@@ -148,7 +37,6 @@ void SimpleShapeApplication::init() {
 
     xe::PointLight light = xe::PointLight(glm::vec3(0,0,1), glm::vec3(1,1,1), 1.0, 0.1); 
     add_light(light);
-    
 
     set_camera(new xe::Camera);
     set_controler(new xe::CameraController(camera()));
@@ -176,14 +64,12 @@ void SimpleShapeApplication::init() {
     
     OGL_CALL(glClearColor(0.81, 0.81, 0.81, 1.0 ));
 
-    
-
     glEnable(GL_DEPTH_TEST);
 }
 
 
 void SimpleShapeApplication::frame() {
-      // Set VM matrix to identity
+      
     glm::mat4 VM = camera_->view() * M_ ;
 
     glm::mat4 PVM{ camera_->projection() * camera_->view() * M_ };
@@ -252,4 +138,3 @@ void SimpleShapeApplication::cursor_position_callback(double x, double y) {
             controller_->mouse_moved(x, y);
         }
     }
-
